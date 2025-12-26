@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe - Cyber Grid</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        :root {
+            --dark-blue: #040d1a;
+            --medium-blue: rgba(15, 42, 82, 0.85);
+            --light-blue: #d9e6ff;
+            --accent: #4a90e2;
+            --neon-blue: #00eaff;
+            --neon-green: #00ff88;
+            --glass: rgba(255, 255, 255, 0.08);
+            --white: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--dark-blue);
+            background-image: 
+                linear-gradient(rgba(0, 234, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 234, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            color: var(--light-blue);
+            font-family: 'Rajdhani', sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 10px rgba(0, 234, 255, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(0, 234, 255, 0.8); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        nav {
+            backdrop-filter: blur(20px);
+            background: var(--medium-blue);
+            padding: 15px 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            border-bottom: 1px solid rgba(0, 234, 255, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo { 
+            display: flex; 
+            flex-direction: column; 
+            text-align: center;
+            animation: pulse-glow 3s infinite;
+        }
+        
+        .logo-text {
+            font-family: "Orbitron", sans-serif;
+            font-size: 2.5rem;
+            letter-spacing: 8px;
+            color: var(--neon-blue);
+            margin: 0;
+            text-shadow: 0 0 15px rgba(0, 234, 255, 0.7);
+        }
+
+        .tagline {
+            font-family: "Orbitron", sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 4px;
+            color: var(--accent);
+            margin: 0;
+            text-transform: uppercase;
+        }
+
+        .hero-section {
+            text-align: center;
+            padding: 60px 20px 40px; /* Reduced padding since board is always there */
+        }
+
+        .page-title {
+            font-family: 'Orbitron', monospace;
+            font-size: clamp(3rem, 10vw, 5.5rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--white) 0%, var(--neon-blue) 50%, var(--neon-green) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(0, 234, 255, 0.5);
+        }
+
+        .game-container {
+            max-width: 900px;
+            margin: 0 auto 100px;
+            padding: 0 20px;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .mode-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(0, 234, 255, 0.3);
+            color: var(--neon-blue);
+            padding: 12px 20px;
+            border-radius: 16px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .mode-btn.active {
+            background: rgba(0, 234, 255, 0.15);
+            border-color: var(--neon-green);
+            color: var(--neon-green);
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.4);
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .status {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            color: var(--neon-green);
+            text-shadow: 0 0 15px var(--neon-green);
+        }
+
+        .score-number {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.8rem;
+            color: var(--neon-blue);
+        }
+
+        .btn {
+            background: var(--glass);
+            border: 1px solid rgba(0, 234, 255, 0.3);
+            color: var(--neon-blue);
+            padding: 10px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .btn:hover {
+            box-shadow: 0 0 20px rgba(0, 234, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* BOARD MODIFIED: Always visible */
+        .game-board {
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 15px;
+            max-width: 450px;
+            margin: 0 auto;
+            padding: 25px;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 2px solid rgba(255,255,255,0.1);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        .cell {
+            aspect-ratio: 1;
+            background: rgba(255,255,255,0.05);
+            border: 2px solid rgba(0, 234, 255, 0.2);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            font-family: 'Orbitron', monospace;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .cell:hover {
+            background: rgba(0, 234, 255, 0.1);
+            border-color: var(--neon-blue);
+            transform: scale(1.03);
+        }
+
+        .cell.x { color: var(--neon-blue); text-shadow: 0 0 20px var(--neon-blue); }
+        .cell.o { color: var(--neon-green); text-shadow: 0 0 20px var(--neon-green); }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active { display: flex; }
+
+        .modal-content {
+            background: var(--dark-blue);
+            padding: 50px;
+            border-radius: 24px;
+            border: 2px solid var(--neon-blue);
+            text-align: center;
+            box-shadow: 0 0 50px rgba(0,234,255,0.3);
+        }
+
+        footer { text-align: center; padding: 40px; opacity: 0.6; }
+
+        @media (max-width: 768px) {
+            .game-info { flex-direction: column; }
+            .logo-text { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <div class="logo">
+            <h1 class="logo-text">TIC TAC TOE</h1>
+            <p class="tagline">CYBER STRATEGY GRID</p>
+        </div>
+    </nav>
+
+    <section class="hero-section">
+        <h1 class="page-title">CLASSIC</h1>
+    </section>
+
+    <div class="game-container">
+        <div class="mode-selector">
+            <button class="mode-btn active" data-mode="human"> Human vs Human</button>
+            <button class="mode-btn" data-mode="easy">Easy AI</button>
+            <button class="mode-btn" data-mode="medium"> Medium AI</button>
+            <button class="mode-btn" data-mode="hard"> Impossible AI</button>
+        </div>
+
+        <div class="game-info">
+            <div class="status" id="status">X's Turn</div>
+            <div class="score">
+                <div style="display:inline-block; margin: 0 15px; text-align: center;">
+                    <div id="player1Label">Player X</div>
+                    <div class="score-number" id="xScore">0</div>
+                </div>
+                <div style="display:inline-block; margin: 0 15px; text-align: center;">
+                    <div id="player2Label">Player O</div>
+                    <div class="score-number" id="oScore">0</div>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="btn" onclick="resetGame()">New Game</button>
+                <button class="btn" onclick="resetScore()">Reset Score</button>
+            </div>
+        </div>
+
+        <div class="game-board" id="gameBoard">
+            <div class="cell" data-index="0"></div>
+            <div class="cell" data-index="1"></div>
+            <div class="cell" data-index="2"></div>
+            <div class="cell" data-index="3"></div>
+            <div class="cell" data-index="4"></div>
+            <div class="cell" data-index="5"></div>
+            <div class="cell" data-index="6"></div>
+            <div class="cell" data-index="7"></div>
+            <div class="cell" data-index="8"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="winModal">
+        <div class="modal-content">
+            <h2 class="status" id="modalTitle" style="font-size: 2.5rem; margin-bottom: 20px;"></h2>
+            <button class="btn" onclick="resetGame()">Play Again</button>
+        </div>
+    </div>
+
+    <footer>
+        <p> CYBERPUNK TIC TAC TOE </p>
+    </footer>
+
+    <script>
+        const board = Array(9).fill(null);
+        let currentPlayer = 'X';
+        let gameActive = true;
+        let gameMode = 'human';
+        let xScore = 0;
+        let oScore = 0;
+        const winningConditions = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],
+            [0, 4, 8], [2, 4, 6]
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => setGameMode(e.target.dataset.mode));
+            });
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.addEventListener('click', handleCellClick);
+            });
+        }
+
+        function setGameMode(mode) {
+            gameMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
+            
+            if (mode === 'human') {
+                document.getElementById('player1Label').textContent = 'Player X';
+                document.getElementById('player2Label').textContent = 'Player O';
+            } else {
+                document.getElementById('player1Label').textContent = 'You (X)';
+                document.getElementById('player2Label').textContent = getAILabel(mode);
+            }
+            resetGame();
+        }
+
+        function getAILabel(mode) {
+            const labels = { easy: 'Easy Bot', medium: 'Medium Bot', hard: 'Impossible Bot' };
+            return labels[mode] || 'AI Bot';
+        }
+
+        function handleCellClick(e) {
+            const index = parseInt(e.target.dataset.index);
+            if (board[index] || !gameActive || (gameMode !== 'human' && currentPlayer === 'O')) return;
+            makeMove(index, 'X');
+        }
+
+        function makeMove(index, player) {
+            board[index] = player;
+            const cell = document.querySelector(`[data-index="${index}"]`);
+            cell.classList.add(player.toLowerCase());
+            cell.textContent = player;
+
+            if (checkWinner()) {
+                gameOver(`${player} Wins! `);
+                player === 'X' ? xScore++ : oScore++;
+                updateScore();
+                return;
+            }
+
+            if (board.every(cell => cell !== null)) {
+                gameOver("It's a Draw! ");
+                return;
+            }
+
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            updateStatus();
+
+            if (gameMode !== 'human' && currentPlayer === 'O') {
+                setTimeout(aiMove, 600);
+            }
+        }
+
+        function aiMove() {
+            let move;
+            if (gameMode === 'hard') move = getBestMove();
+            else if (gameMode === 'medium') move = Math.random() < 0.6 ? getSmartMove() : getEasyMove();
+            else move = getEasyMove();
+
+            if (move === null) move = getEasyMove();
+            makeMove(move, 'O');
+        }
+
+        function getEasyMove() {
+            const empty = board.map((v, i) => v === null ? i : null).filter(v => v !== null);
+            return empty[Math.floor(Math.random() * empty.length)];
+        }
+
+        function getSmartMove() {
+            for (let p of ['O', 'X']) {
+                for (let i = 0; i < 9; i++) {
+                    if (board[i] === null) {
+                        board[i] = p;
+                        if (checkWinner()) { board[i] = null; return i; }
+                        board[i] = null;
+                    }
+                }
+            }
+            return null;
+        }
+
+        function getBestMove() {
+            let bestScore = -Infinity;
+            let move;
+            for (let i = 0; i < 9; i++) {
+                if (board[i] === null) {
+                    board[i] = 'O';
+                    let score = minimax(board, 0, false);
+                    board[i] = null;
+                    if (score > bestScore) { bestScore = score; move = i; }
+                }
+            }
+            return move;
+        }
+
+        function minimax(board, depth, isMax) {
+            let result = checkWinner();
+            if (result === 'O') return 10 - depth;
+            if (result === 'X') return depth - 10;
+            if (!board.includes(null)) return 0;
+
+            if (isMax) {
+                let best = -Infinity;
+                for (let i = 0; i < 9; i++) {
+                    if (board[i] === null) {
+                        board[i] = 'O';
+                        best = Math.max(best, minimax(board, depth + 1, false));
+                        board[i] = null;
+                    }
+                }
+                return best;
+            } else {
+                let best = Infinity;
+                for (let i = 0; i < 9; i++) {
+                    if (board[i] === null) {
+                        board[i] = 'X';
+                        best = Math.min(best, minimax(board, depth + 1, true));
+                        board[i] = null;
+                    }
+                }
+                return best;
+            }
+        }
+
+        function checkWinner() {
+            for (let cond of winningConditions) {
+                const [a, b, c] = cond;
+                if (board[a] && board[a] === board[b] && board[a] === board[c]) return board[a];
+            }
+            return null;
+        }
+
+        function gameOver(msg) {
+            gameActive = false;
+            document.getElementById('modalTitle').textContent = msg;
+            setTimeout(() => document.getElementById('winModal').classList.add('active'), 500);
+        }
+
+        function updateStatus() {
+            const status = document.getElementById('status');
+            if (gameMode === 'human') status.textContent = `${currentPlayer}'s Turn`;
+            else status.textContent = currentPlayer === 'X' ? "Your Turn" : "AI Thinking...";
+        }
+
+        function updateScore() {
+            document.getElementById('xScore').textContent = xScore;
+            document.getElementById('oScore').textContent = oScore;
+        }
+
+        function resetGame() {
+            board.fill(null);
+            gameActive = true;
+            currentPlayer = 'X';
+            document.getElementById('winModal').classList.remove('active');
+            document.querySelectorAll('.cell').forEach(c => {
+                c.textContent = '';
+                c.className = 'cell';
+            });
+            updateStatus();
+        }
+
+        function resetScore() {
+            xScore = 0; oScore = 0;
+            updateScore();
+            resetGame();
+        }
+    </script>
+</body>
+</html>
