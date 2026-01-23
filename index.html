@@ -27,17 +27,18 @@
         }
 
         body {
-            background: var(--dark-blue);
-            background-image: 
-                linear-gradient(rgba(0, 234, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 234, 255, 0.03) 1px, transparent 1px);
-            background-size: 50px 50px;
-            color: var(--light-blue);
-            font-family: 'Rajdhani', sans-serif;
-            line-height: 1.6;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
+    background: #000000;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+    background-size: 50px 50px;
+    color: var(--light-blue);
+    font-family: 'Rajdhani', sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
 
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(40px); }
@@ -55,18 +56,19 @@
         }
 
         nav {
-            backdrop-filter: blur(20px);
-            background: var(--medium-blue);
-            padding: 15px 60px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-            border-bottom: 1px solid rgba(0, 234, 255, 0.3);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
+    backdrop-filter: blur(20px);
+    background: rgba(0, 0, 0, 0.9);  /* solid dark bar */
+    padding: 15px 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.8);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
 
         .logo { 
             display: flex; 
@@ -467,8 +469,8 @@
                 let best = Infinity;
                 for (let i = 0; i < 9; i++) {
                     if (board[i] === null) {
-                        board[i] = 'X';
-                        best = Math.min(best, minimax(board, depth + 1, true));
+                        board[i] = 'X';;
+                        best = Math.min(best, minimax(board, depth + 1, true))
                         board[i] = null;
                     }
                 }
