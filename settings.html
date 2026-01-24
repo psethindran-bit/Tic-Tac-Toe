@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Cyber Grid Tic Tac Toe</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        :root {
+            --dark-blue: #040d1a;
+            --medium-blue: rgba(15, 42, 82, 0.85);
+            --light-blue: #d9e6ff;
+            --accent: #4a90e2;
+            --neon-blue: #00eaff;
+            --neon-green: #00ff88;
+            --glass: rgba(255, 255, 255, 0.08);
+            --white: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: #000000;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+            background-size: 50px 50px;
+            color: var(--light-blue);
+            font-family: 'Rajdhani', sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 10px rgba(0, 234, 255, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(0, 234, 255, 0.8); }
+        }
+
+        nav {
+            backdrop-filter: blur(20px);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 15px 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.8);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo { 
+            display: flex; 
+            flex-direction: column; 
+            animation: pulse-glow 3s infinite;
+        }
+        
+        .logo-text {
+            font-family: "Orbitron", sans-serif;
+            font-size: 2.5rem;
+            letter-spacing: 8px;
+            color: var(--neon-blue);
+            margin: 0;
+            text-shadow: 0 0 15px rgba(0, 234, 255, 0.7);
+        }
+
+        .tagline {
+            font-family: "Orbitron", sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 4px;
+            color: var(--accent);
+            margin: 0;
+            text-transform: uppercase;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: var(--neon-blue);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--neon-green);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-links a:hover {
+            color: var(--neon-green);
+            text-shadow: 0 0 15px var(--neon-green);
+        }
+
+        .hero-section {
+            text-align: center;
+            padding: 60px 20px 40px;
+        }
+
+        .page-title {
+            font-family: 'Orbitron', monospace;
+            font-size: clamp(3rem, 10vw, 5.5rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--white) 0%, var(--neon-blue) 50%, var(--neon-green) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(0, 234, 255, 0.5);
+        }
+
+        .content-container {
+            max-width: 900px;
+            margin: 0 auto 100px;
+            padding: 0 20px;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .settings-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 2px solid rgba(0, 234, 255, 0.2);
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+
+        .settings-card h2 {
+            font-family: 'Orbitron', monospace;
+            font-size: 2rem;
+            color: var(--neon-blue);
+            margin-bottom: 25px;
+            text-shadow: 0 0 15px rgba(0, 234, 255, 0.5);
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(0, 234, 255, 0.1);
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-info {
+            flex: 1;
+        }
+
+        .setting-info h3 {
+            font-family: 'Orbitron', monospace;
+            color: var(--neon-green);
+            margin-bottom: 5px;
+            font-size: 1.3rem;
+        }
+
+        .setting-info p {
+            color: rgba(217, 230, 255, 0.7);
+            font-size: 1rem;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 70px;
+            height: 35px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: .4s;
+            border-radius: 34px;
+            border: 2px solid rgba(0, 234, 255, 0.3);
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 23px;
+            width: 23px;
+            left: 4px;
+            bottom: 4px;
+            background-color: var(--light-blue);
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: rgba(0, 234, 255, 0.3);
+            border-color: var(--neon-green);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(35px);
+            background-color: var(--neon-green);
+            box-shadow: 0 0 15px var(--neon-green);
+        }
+
+        .select-wrapper {
+            position: relative;
+            display: inline-block;
+            min-width: 200px;
+        }
+
+        select {
+            background: rgba(0, 234, 255, 0.1);
+            color: var(--neon-blue);
+            border: 2px solid rgba(0, 234, 255, 0.3);
+            padding: 10px 40px 10px 15px;
+            border-radius: 12px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            appearance: none;
+            width: 100%;
+            transition: all 0.3s;
+        }
+
+        select:hover {
+            border-color: var(--neon-green);
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.2);
+        }
+
+        .select-wrapper::after {
+            content: '\f078';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--neon-blue);
+            pointer-events: none;
+        }
+
+        .color-picker {
+            width: 80px;
+            height: 40px;
+            border: 2px solid rgba(0, 234, 255, 0.3);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .color-picker:hover {
+            border-color: var(--neon-green);
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.2);
+        }
+
+        .btn {
+            background: var(--glass);
+            border: 1px solid rgba(0, 234, 255, 0.3);
+            color: var(--neon-blue);
+            padding: 15px 35px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: 0.3s;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .btn:hover {
+            box-shadow: 0 0 20px rgba(0, 234, 255, 0.4);
+            transform: translateY(-2px);
+            background: rgba(0, 234, 255, 0.1);
+        }
+
+        .btn-danger {
+            border-color: rgba(255, 0, 100, 0.3);
+            color: #ff0064;
+        }
+
+        .btn-danger:hover {
+            box-shadow: 0 0 20px rgba(255, 0, 100, 0.4);
+            background: rgba(255, 0, 100, 0.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .saved-notification {
+            position: fixed;
+            top: 100px;
+            right: 30px;
+            background: rgba(0, 255, 136, 0.2);
+            border: 2px solid var(--neon-green);
+            padding: 20px 30px;
+            border-radius: 12px;
+            color: var(--neon-green);
+            font-weight: 600;
+            opacity: 0;
+            transform: translateX(400px);
+            transition: all 0.5s;
+            z-index: 2000;
+        }
+
+        .saved-notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        footer { 
+            text-align: center; 
+            padding: 40px; 
+            opacity: 0.6; 
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                gap: 20px;
+                padding: 20px;
+            }
+
+            .settings-card {
+                padding: 25px 15px;
+            }
+
+            .setting-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .logo-text { 
+                font-size: 1.8rem; 
+            }
+
+            .nav-links {
+                gap: 15px;
+            }
+
+            .select-wrapper {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <div class="logo">
+            <h1 class="logo-text">TIC TAC TOE</h1>
+            <p class="tagline">CYBER STRATEGY GRID</p>
+        </div>
+        <div class="nav-links">
+            <a href="index.html"><i class="fas fa-home"></i> Home</a>
+            <a href="about.html"><i class="fas fa-info-circle"></i> About</a>
+            <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+        </div>
+    </nav>
+
+    <section class="hero-section">
+        <h1 class="page-title">SETTINGS</h1>
+    </section>
+
+    <div class="content-container">
+        <div class="settings-card">
+            <h2><i class="fas fa-gamepad"></i> Game Settings</h2>
+            
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h3>Sound Effects</h3>
+                    <p>Enable or disable game sound effects</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="soundToggle" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h3>Animations</h3>
+                    <p>Toggle smooth animations and transitions</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="animationToggle" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h3>Default Game Mode</h3>
+                    <p>Choose which mode to start with</p>
+                </div>
+                <div class="select-wrapper">
+                    <select id="defaultMode">
+                        <option value="human">Human vs Human</option>
+                        <option value="easy">Easy AI</option>
+                        <option value="medium">Medium AI</option>
+                        <option value="hard">Impossible AI</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h3>Auto-Reset After Win</h3>
+                    <p>Automatically start a new game after someone wins</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="autoResetToggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="settings-card">
+            <h2><i class="fas fa-palette"></i> Appearance</h2>
+            
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h3>Grid Glow Effect</h3>
+                    <p>Enable pulsing glow effect on the game board</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="glowToggle" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h3>Player X Color</h3>
+                    <p>Customize the color for Player X</p>
+                </div>
+                <input type="color" class="color-picker" id="colorX" value="#00eaff">
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h3>Player O Color</h3>
+                    <p>Customize the color for Player O</p>
+                </div>
+                <input type="color" class="color-picker" id="colorO" value="#00ff88">
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h3>Background Pattern</h3>
+                    <p>Choose the background grid style</p>
+                </div>
+                <div class="select-wrapper">
+                    <select id="bgPattern">
+                        <option value="grid">Cyber Grid</option>
+                        <option value="dots">Dot Matrix</option>
+                        <option value="lines">Scan Lines</option>
+                        <option value="solid">Solid Black</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-card">
+            <h2><i class="fas fa-shield-alt"></i> Data & Privacy</h2>
+            
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h3>Save Game Statistics</h3>
+                    <p>Store your win/loss record locally</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="statsToggle" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h3>Clear All Data</h3>
+                    <p>Reset all settings and scores to default</p>
+                </div>
+                <button class="btn btn-danger" onclick="clearAllData()">
+                    <i class="fas fa-trash"></i> Clear Data
+                </button>
+            </div>
+        </div>
+
+        <div class="settings-card">
+            <div class="button-group">
+                <button class="btn" onclick="saveSettings()">
+                    <i class="fas fa-save"></i> Save Settings
+                </button>
+                <button class="btn" onclick="resetToDefaults()">
+                    <i class="fas fa-undo"></i> Reset to Defaults
+                </button>
+                <a href="index.html" class="btn">
+                    <i class="fas fa-arrow-left"></i> Back to Game
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="saved-notification" id="notification">
+        <i class="fas fa-check-circle"></i> Settings Saved Successfully!
+    </div>
+
+    <footer>
+        <p>⚡ CYBERPUNK TIC TAC TOE ⚡</p>
+        <p style="margin-top: 10px; font-size: 0.9rem;">Your preferences are stored locally on your device</p>
+    </footer>
+
+    <script>
+        // Load settings on page load
+        document.addEventListener('DOMContentLoaded', loadSettings);
+
+        function loadSettings() {
+            // These would normally load from storage
+            const settings = {
+                sound: true,
+                animations: true,
+                defaultMode: 'human',
+                autoReset: false,
+                glow: true,
+                colorX: '#00eaff',
+                colorO: '#00ff88',
+                bgPattern: 'grid',
+                stats: true
+            };
+
+            document.getElementById('soundToggle').checked = settings.sound;
+            document.getElementById('animationToggle').checked = settings.animations;
+            document.getElementById('defaultMode').value = settings.defaultMode;
+            document.getElementById('autoResetToggle').checked = settings.autoReset;
+            document.getElementById('glowToggle').checked = settings.glow;
+            document.getElementById('colorX').value = settings.colorX;
+            document.getElementById('colorO').value = settings.colorO;
+            document.getElementById('bgPattern').value = settings.bgPattern;
+            document.getElementById('statsToggle').checked = settings.stats;
+        }
+
+        function saveSettings() {
+            const settings = {
+                sound: document.getElementById('soundToggle').checked,
+                animations: document.getElementById('animationToggle').checked,
+                defaultMode: document.getElementById('defaultMode').value,
+                autoReset: document.getElementById('autoResetToggle').checked,
+                glow: document.getElementById('glowToggle').checked,
+                colorX: document.getElementById('colorX').value,
+                colorO: document.getElementById('colorO').value,
+                bgPattern: document.getElementById('bgPattern').value,
+                stats: document.getElementById('statsToggle').checked
+            };
+
+            // In a real implementation, save to storage here
+            console.log('Saving settings:', settings);
+
+            showNotification();
+        }
+
+        function showNotification() {
+            const notification = document.getElementById('notification');
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        function resetToDefaults() {
+            if (confirm('Reset all settings to default values?')) {
+                document.getElementById('soundToggle').checked = true;
+                document.getElementById('animationToggle').checked = true;
+                document.getElementById('defaultMode').value = 'human';
+                document.getElementById('autoResetToggle').checked = false;
+                document.getElementById('glowToggle').checked = true;
+                document.getElementById('colorX').value = '#00eaff';
+                document.getElementById('colorO').value = '#00ff88';
+                document.getElementById('bgPattern').value = 'grid';
+                document.getElementById('statsToggle').checked = true;
+                
+                saveSettings();
+            }
+        }
+
+        function clearAllData() {
+            if (confirm('This will clear all settings, scores, and statistics. Are you sure?')) {
+                resetToDefaults();
+                alert('All data has been cleared!');
+            }
+        }
+    </script>
+</body>
+</html>
