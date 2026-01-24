@@ -472,10 +472,10 @@
 
     <div class="game-container">
         <div class="mode-selector">
-            <button class="mode-btn active" data-mode="human"> Human vs Human</button>
+            <button class="mode-btn active" data-mode="human">Human vs Human</button>
             <button class="mode-btn" data-mode="easy">Easy AI</button>
-            <button class="mode-btn" data-mode="medium"> Medium AI</button>
-            <button class="mode-btn" data-mode="hard"> Impossible AI</button>
+            <button class="mode-btn" data-mode="medium">Medium AI</button>
+            <button class="mode-btn" data-mode="hard">Impossible AI</button>
         </div>
 
         <div class="game-info">
@@ -621,16 +621,18 @@
     </div>
 
     <footer>
-        <p> CYBERPUNK TIC TAC TOE </p>
+        <p>CYBERPUNK TIC TAC TOE</p>
     </footer>
 
     <script>
-        const board = Array(9).fill(null);
+        // Core game state
+        let board = Array(9).fill(null);
         let currentPlayer = 'X';
         let gameActive = true;
         let gameMode = 'human';
         let xScore = 0;
         let oScore = 0;
+
         const winningConditions = [
             [0, 1, 2], [3, 4, 5], [6, 7, 8],
             [0, 3, 6], [1, 4, 7], [2, 5, 8],
@@ -652,12 +654,17 @@
             setupEventListeners();
             loadSettings();
             applySettings();
+            updateStatus();
         });
 
         function setupEventListeners() {
             document.querySelectorAll('.mode-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => setGameMode(e.target.dataset.mode));
+                btn.addEventListener('click', (e) => {
+                    const mode = btn.dataset.mode;
+                    setGameMode(mode);
+                });
             });
+
             document.querySelectorAll('.cell').forEach(cell => {
                 cell.addEventListener('click', handleCellClick);
             });
@@ -670,8 +677,9 @@
             document.getElementById('bgPattern').addEventListener('change', updateBackground);
         }
 
+        // SETTINGS
+
         function loadSettings() {
-            // In a real app, load from localStorage
             document.getElementById('soundToggle').checked = settings.sound;
             document.getElementById('animationToggle').checked = settings.animations;
             document.getElementById('autoResetToggle').checked = settings.autoReset;
@@ -682,28 +690,28 @@
         }
 
         function applySettings() {
-            // Apply animations
+            // Animations
             if (!settings.animations) {
                 document.body.classList.add('no-animations');
             } else {
                 document.body.classList.remove('no-animations');
             }
 
-            // Apply glow
-            const board = document.getElementById('gameBoard');
+            // Glow
+            const boardEl = document.getElementById('gameBoard');
             if (settings.glow) {
-                board.classList.add('glow-effect');
+                boardEl.classList.add('glow-effect');
             } else {
-                board.classList.remove('glow-effect');
+                boardEl.classList.remove('glow-effect');
             }
 
-            // Apply colors
+            // Colors
             document.documentElement.style.setProperty('--color-x', settings.colorX);
             document.documentElement.style.setProperty('--color-o', settings.colorO);
 
-            // Apply background
+            // Background
             const body = document.body;
-            switch(settings.bgPattern) {
+            switch (settings.bgPattern) {
                 case 'dots':
                     body.style.backgroundImage = 'radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px)';
                     body.style.backgroundSize = '30px 30px';
@@ -712,7 +720,9 @@
                     body.style.backgroundImage = 'none';
                     break;
                 default: // grid
-                    body.style.backgroundImage = 'linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px)';
+                    body.style.backgroundImage =
+                        'linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px), ' +
+                        'linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px)';
                     body.style.backgroundSize = '50px 50px';
             }
         }
@@ -733,8 +743,6 @@
             settings.colorX = document.getElementById('colorX').value;
             settings.colorO = document.getElementById('colorO').value;
             settings.bgPattern = document.getElementById('bgPattern').value;
-
-            // In a real app, save to localStorage here
 
             applySettings();
             alert('Settings saved!');
@@ -775,6 +783,8 @@
             applySettings();
         }
 
+        // GAME LOGIC
+
         function setGameMode(mode) {
             gameMode = mode;
             document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
@@ -796,7 +806,7 @@
         }
 
         function handleCellClick(e) {
-            const index = parseInt(e.target.dataset.index);
+            const index = parseInt(e.target.dataset.index, 10);
             if (board[index] || !gameActive) return;
 
             if (gameMode === 'human') {
@@ -807,20 +817,22 @@
         }
 
         function makeMove(index, player) {
+            if (!gameActive || board[index]) return;
+
             board[index] = player;
             const cell = document.querySelector(`[data-index="${index}"]`);
             cell.classList.add(player.toLowerCase());
             cell.textContent = player;
 
-            if (checkWinner()) {
-                gameOver(`${player} Wins! `);
+            if (checkWinner(player)) {
                 player === 'X' ? xScore++ : oScore++;
                 updateScore();
+                gameOver(`${player} Wins!`);
                 return;
             }
 
-            if (board.every(cell => cell !== null)) {
-                gameOver("It's a Draw! ");
+            if (board.every(c => c !== null)) {
+                gameOver("It's a Draw!");
                 return;
             }
 
@@ -832,20 +844,174 @@
             }
         }
 
+        function updateStatus() {
+            const status = document.getElementById('status');
+            if (!gameActive) return;
+            if (gameMode === 'human') {
+                status.textContent = `${currentPlayer}'s Turn`;
+            } else {
+                if (currentPlayer === 'X') {
+                    status.textContent = "Your Turn (X)";
+                } else {
+                    status.textContent = "AI Thinking...";
+                }
+            }
+        }
+
+        function updateScore() {
+            document.getElementById('xScore').textContent = xScore;
+            document.getElementById('oScore').textContent = oScore;
+        }
+
+        function resetGame() {
+            board = Array(9).fill(null);
+            currentPlayer = 'X';
+            gameActive = true;
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.textContent = '';
+                cell.classList.remove('x', 'o');
+            });
+            document.getElementById('winModal').classList.remove('active');
+            updateStatus();
+        }
+
+        function resetScore() {
+            xScore = 0;
+            oScore = 0;
+            updateScore();
+            resetGame();
+        }
+
+        function gameOver(message) {
+            gameActive = false;
+            document.getElementById('modalTitle').textContent = message;
+            document.getElementById('winModal').classList.add('active');
+
+            if (settings.autoReset) {
+                setTimeout(() => {
+                    resetGame();
+                }, 1500);
+            }
+        }
+
+        function checkWinner(player) {
+            return winningConditions.some(comb => {
+                const [a, b, c] = comb;
+                return board[a] === player && board[b] === player && board[c] === player;
+            });
+        }
+
+        // AI LOGIC
+
         function aiMove() {
-            let move;
-            if (gameMode === 'hard') move = getBestMove();
-            else if (gameMode === 'medium') move = Math.random() < 0.6 ? getSmartMove() : getEasyMove();
-            else move = getEasyMove();
+            let move = null;
+
+            if (gameMode === 'hard') {
+                move = getBestMove();
+            } else if (gameMode === 'medium') {
+                move = Math.random() < 0.6 ? getSmartMove() : getEasyMove();
+            } else {
+                move = getEasyMove();
+            }
 
             if (move === null) move = getEasyMove();
-            makeMove(move, 'O');
+            if (move !== null) {
+                makeMove(move, 'O');
+            }
         }
 
         function getEasyMove() {
-            const empty = board.map((v, i) => v === null ? i : null).filter(v => v !== null);
+            const empty = board
+                .map((v, i) => v === null ? i : null)
+                .filter(v => v !== null);
+            if (empty.length === 0) return null;
             return empty[Math.floor(Math.random() * empty.length)];
         }
 
+        // Try to win, else block, else random
         function getSmartMove() {
-            for (let p of ['O', 'X'])
+            // 1. Win if possible
+            for (let i = 0; i < 9; i++) {
+                if (board[i] === null) {
+                    board[i] = 'O';
+                    if (checkWinner('O')) {
+                        board[i] = null;
+                        return i;
+                    }
+                    board[i] = null;
+                }
+            }
+
+            // 2. Block X if they can win
+            for (let i = 0; i < 9; i++) {
+                if (board[i] === null) {
+                    board[i] = 'X';
+                    if (checkWinner('X')) {
+                        board[i] = null;
+                        return i;
+                    }
+                    board[i] = null;
+                }
+            }
+
+            // 3. Otherwise random
+            return getEasyMove();
+        }
+
+        // Minimax for impossible mode
+        function getBestMove() {
+            let bestScore = -Infinity;
+            let move = null;
+
+            for (let i = 0; i < 9; i++) {
+                if (board[i] === null) {
+                    board[i] = 'O';
+                    const score = minimax(board, 0, false);
+                    board[i] = null;
+                    if (score > bestScore) {
+                        bestScore = score;
+                        move = i;
+                    }
+                }
+            }
+            return move;
+        }
+
+        const scores = {
+            O: 1,
+            X: -1,
+            tie: 0
+        };
+
+        function minimax(newBoard, depth, isMaximizing) {
+            if (checkWinner('O')) return scores.O;
+            if (checkWinner('X')) return scores.X;
+            if (newBoard.every(c => c !== null)) return scores.tie;
+
+            if (isMaximizing) {
+                let bestScore = -Infinity;
+                for (let i = 0; i < 9; i++) {
+                    if (newBoard[i] === null) {
+                        newBoard[i] = 'O';
+                        const score = minimax(newBoard, depth + 1, false);
+                        newBoard[i] = null;
+                        bestScore = Math.max(score, bestScore);
+                    }
+                }
+                return bestScore;
+            } else {
+                let bestScore = Infinity;
+                for (let i = 0; i < 9; i++) {
+                    if (newBoard[i] === null) {
+                        newBoard[i] = 'X';
+                        const score = minimax(newBoard, depth + 1, true);
+                        newBoard[i] = null;
+                        bestScore = Math.min(score, bestScore);
+                    }
+                }
+                return bestScore;
+            }
+        }
+    </script>
+</body>
+</html>
