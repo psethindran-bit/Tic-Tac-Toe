@@ -639,6 +639,9 @@
             [0, 4, 8], [2, 4, 6]
         ];
 
+        // Audio Context for sound effects
+        let audioContext = null;
+
         // Settings variables
         let settings = {
             sound: true,
@@ -657,6 +660,85 @@
             updateStatus();
         });
 
+        // SOUND EFFECTS
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playMoveSound(player) {
+            if (!settings.sound) return;
+            initAudio();
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            // X: Sharp laser beep (high pitch)
+            if (player === 'X') {
+                oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(1200, audioContext.currentTime + 0.1);
+            } else {
+                // O: Soft synth pulse (lower pitch)
+                oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 0.15);
+            }
+            
+            oscillator.type = 'sawtooth';
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.2);
+        }
+
+        function playWinSound() {
+            if (!settings.sound) return;
+            initAudio();
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            // Victory fanfare
+            oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+            oscillator.frequency.linearRampToValueAtTime(800, audioContext.currentTime + 0.3);
+            oscillator.frequency.linearRampToValueAtTime(1000, audioContext.currentTime + 0.6);
+            
+            oscillator.type = 'sine';
+            gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.6);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.6);
+        }
+
+        function playNewGameSound() {
+            if (!settings.sound) return;
+            initAudio();
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(300, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.3);
+            
+            oscillator.type = 'sine';
+            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.3);
+        }
+
         function setupEventListeners() {
             document.querySelectorAll('.mode-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
@@ -670,6 +752,9 @@
             });
 
             // Settings listeners
+            document.getElementById('soundToggle').addEventListener('change', function() {
+                settings.sound = this.checked;
+            });
             document.getElementById('animationToggle').addEventListener('change', toggleAnimations);
             document.getElementById('glowToggle').addEventListener('change', toggleGlow);
             document.getElementById('colorX').addEventListener('change', updateColors);
@@ -677,8 +762,7 @@
             document.getElementById('bgPattern').addEventListener('change', updateBackground);
         }
 
-        // SETTINGS
-
+        // SETTINGS FUNCTIONS (unchanged)
         function loadSettings() {
             document.getElementById('soundToggle').checked = settings.sound;
             document.getElementById('animationToggle').checked = settings.animations;
@@ -690,14 +774,12 @@
         }
 
         function applySettings() {
-            // Animations
             if (!settings.animations) {
                 document.body.classList.add('no-animations');
             } else {
                 document.body.classList.remove('no-animations');
             }
 
-            // Glow
             const boardEl = document.getElementById('gameBoard');
             if (settings.glow) {
                 boardEl.classList.add('glow-effect');
@@ -705,11 +787,9 @@
                 boardEl.classList.remove('glow-effect');
             }
 
-            // Colors
             document.documentElement.style.setProperty('--color-x', settings.colorX);
             document.documentElement.style.setProperty('--color-o', settings.colorO);
 
-            // Background
             const body = document.body;
             switch (settings.bgPattern) {
                 case 'dots':
@@ -719,7 +799,7 @@
                 case 'solid':
                     body.style.backgroundImage = 'none';
                     break;
-                default: // grid
+                default:
                     body.style.backgroundImage =
                         'linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px), ' +
                         'linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px)';
@@ -783,8 +863,7 @@
             applySettings();
         }
 
-        // GAME LOGIC
-
+        // GAME LOGIC (enhanced with sounds)
         function setGameMode(mode) {
             gameMode = mode;
             document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
@@ -824,14 +903,19 @@
             cell.classList.add(player.toLowerCase());
             cell.textContent = player;
 
+            // PLAY SOUND EFFECT
+            playMoveSound(player);
+
             if (checkWinner(player)) {
                 player === 'X' ? xScore++ : oScore++;
                 updateScore();
+                playWinSound();
                 gameOver(`${player} Wins!`);
                 return;
             }
 
             if (board.every(c => c !== null)) {
+                playWinSound();
                 gameOver("It's a Draw!");
                 return;
             }
@@ -864,6 +948,7 @@
         }
 
         function resetGame() {
+            playNewGameSound();
             board = Array(9).fill(null);
             currentPlayer = 'X';
             gameActive = true;
@@ -901,8 +986,7 @@
             });
         }
 
-        // AI LOGIC
-
+        // AI LOGIC (unchanged)
         function aiMove() {
             let move = null;
 
@@ -928,9 +1012,7 @@
             return empty[Math.floor(Math.random() * empty.length)];
         }
 
-        // Try to win, else block, else random
         function getSmartMove() {
-            // 1. Win if possible
             for (let i = 0; i < 9; i++) {
                 if (board[i] === null) {
                     board[i] = 'O';
@@ -942,7 +1024,6 @@
                 }
             }
 
-            // 2. Block X if they can win
             for (let i = 0; i < 9; i++) {
                 if (board[i] === null) {
                     board[i] = 'X';
@@ -954,11 +1035,9 @@
                 }
             }
 
-            // 3. Otherwise random
             return getEasyMove();
         }
 
-        // Minimax for impossible mode
         function getBestMove() {
             let bestScore = -Infinity;
             let move = null;
